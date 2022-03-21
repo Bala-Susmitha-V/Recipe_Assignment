@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.abn.amro.exception.RecipeNotFoundException;
+
 import com.abn.amro.model.Recipe;
 import com.abn.amro.service.RecipeService;
 
+import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("recipe")
 @SecurityRequirement(name="recipeapi")
+@Api(value="Recipepage",description = "Adding, updating and deleting recipe list")
 @RequiredArgsConstructor
 public class RecipeController {
 	
@@ -61,7 +62,7 @@ public class RecipeController {
 	 */
 	@GetMapping(path="/{id}")
 	public Recipe getRecipeDetails(@PathVariable Long id) {
-		return recipeService.findById(id).orElseThrow(()->new RecipeNotFoundException("Recipe Not Found. You can add as new recipe."));		
+		return recipeService.findById(id);		
 	}
 	
 	/**
@@ -69,7 +70,7 @@ public class RecipeController {
 	 * @param A JSON respresentation of recipe object
 	 * @return Saved Successfully message with status code CREATED if recipe created and Save Failed message with status code BAD_REQUEST if recipe does not saved due to any issues.
 	 */
-	@PostMapping(value="/create",produces = "application/json")
+	@PostMapping(value="/create")
 	public ResponseEntity<String> createNewRecipe(@RequestBody Recipe recipe) {
 		String message = recipeService.save(recipe);
 		if(message.equals("Saved")) {
@@ -102,7 +103,7 @@ public class RecipeController {
 	 * @param Recipe id
 	 * @return Deleted Successfully message with status code OK if deleted and  Deletion error with status code INTERNAL_SERVER_ERROR if any error
 	 */
-	@DeleteMapping(value="/delete/{id}",produces = "application/json")
+	@DeleteMapping(value="/delete/{id}")
 	public ResponseEntity<String> deleteRecipe(@PathVariable Long id) {
 			String message =  recipeService.delete(id);
 			if(message.equals("Deleted")) {

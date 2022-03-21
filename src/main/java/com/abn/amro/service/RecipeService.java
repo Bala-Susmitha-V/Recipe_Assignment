@@ -40,8 +40,8 @@ public class RecipeService {
 	 * @param Recipe id
 	 * @return Recipe if found and  null if Recipe not found
 	 */
-    public Optional <Recipe> findById(long id) {
-        return recipeRepository.findById(id);
+    public Recipe findById(long id) {
+        return recipeRepository.findById(id).orElseThrow(()->new RecipeNotFoundException("Recipe Not Found. You can add as new recipe."));
     }
 
     /**
@@ -58,21 +58,17 @@ public class RecipeService {
      */
     public String save(Recipe recipe) {
     	if(recipe!=null) {
-	    	if(recipe.getCreationTime()==null) {
-	    		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-	    		LocalDateTime now = LocalDateTime.now(); 
-	    		recipe.setCreationTime(dtf.format(now));
-	    	}
-	    	
-	    	boolean checkDup = this.getDuplicates(findAll(),recipe.getName());
-	    	Recipe addedrecipe ;
+	    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+	    	LocalDateTime now = LocalDateTime.now(); 
+	    	recipe.setCreationTime(dtf.format(now));	    	
+	    	 boolean checkDup = this.getDuplicates(findAll(),recipe.getName());
 	    	if(checkDup==false) {   	
-	    		 addedrecipe =recipeRepository.save(recipe);
+	    	  Recipe addedrecipe =recipeRepository.save(recipe);
+	    		return "Saved";
 	    	}
 	    	else {
 	    		throw new DuplicateRecipeException("Duplicate Recipe Exception");
 	    	}
-	    		return "Saved";
     	}
     	else {
     		return "Error";

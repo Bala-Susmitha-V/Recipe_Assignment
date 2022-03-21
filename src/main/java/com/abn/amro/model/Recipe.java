@@ -1,13 +1,15 @@
 package com.abn.amro.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 /**
  * Entity class for Recipe
@@ -22,6 +24,7 @@ public class Recipe {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
+	@Size(min = 3,max = 15)
 	@Column(name = "recipename", nullable = false)
 	private String name;
 
@@ -34,8 +37,9 @@ public class Recipe {
 	@Column(name = "peopleCount", nullable = false)
 	private int peopleCount;
 
+	@ElementCollection(targetClass=String.class)
 	@Column(name = "ingredients", nullable = false)
-	private ArrayList<String> ingredients;
+	private List<String> ingredients;
 
 	@Column(name = "instructions", nullable = false)
 	private String instructions;
@@ -59,7 +63,7 @@ public class Recipe {
 	 * @param instructions
 	 */
 	public Recipe(Long id, String name, String creationTime, String vegorNonveg, int peopleCount,
-			ArrayList<String> ingredients, String instructions) {
+			List<String> ingredients, String instructions) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -161,19 +165,12 @@ public class Recipe {
 		this.peopleCount = peopleCount;
 	}
 
-	/**
-	 * Get the list of ingredients for the recipe
-	 * @return Ingredients list
-	 */
-	public ArrayList<String> getIngredients() {
+
+	public List<String> getIngredients() {
 		return ingredients;
 	}
 
-	/**
-	 * Sets the list of ingredients for the recipe
-	 * @param ingredients
-	 */
-	public void setIngredients(ArrayList<String> ingredients) {
+	public void setIngredients(List<String> ingredients) {
 		this.ingredients = ingredients;
 	}
 

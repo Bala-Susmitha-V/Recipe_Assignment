@@ -1,8 +1,10 @@
 package com.abn.amro.security;
 
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import static springfox.documentation.builders.PathSelectors.regex;
+
+import java.util.Collections;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,13 +12,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 /**
- * This class provides the authentication for rest apis
+ * This class provides the authentication for rest apis in swagger
  * @author Bala Susmitha Vinjamuri
  *
  */
 @EnableWebSecurity
-public class BasicConfiguration extends WebSecurityConfigurerAdapter {
+@EnableSwagger2
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	/**
 	 * Sets the credentials for USER and ADMIN roles
@@ -53,6 +63,36 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
     	
     	   
         
+    }
+    
+    
+    /**
+	 * displays webpage description
+	 * @return apiinfo
+	 */
+    private ApiInfo apiInfo() {
+        return new ApiInfo("Recipe App Rest APIs",
+                "APIs for RecipeApp.",
+                "1.0",
+                "Terms of service",
+                new Contact("test", "susmitha", "bala.vinjamuri@capgemini.com"),
+                "License of API",
+                "API license URL",
+                Collections.emptyList());
+    }
+    
+    /**
+     * Builds api documentation type on base package
+     * @return Docket
+     */
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.abn.amro"))
+                .paths(regex("/recipe.*"))
+                .build();
     }
  
 }

@@ -1,4 +1,4 @@
-package com.abn.amro;
+package com.abn.amro.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import com.abn.amro.controller.RecipeController;
 import com.abn.amro.model.Recipe;
 import com.abn.amro.service.RecipeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,19 +76,19 @@ public class RecipeControllerTest {
 	 */
 	@BeforeEach
 	public void setup() {
-		ArrayList<String> halwaIngredients = new ArrayList<String>();
+		List<String> halwaIngredients = new ArrayList<String>();
 		halwaIngredients.add("Sugar");
 		halwaIngredients.add("Bread");
 		halwaIngredients.add("Ghee");
 		halwaIngredients.add("cinnamon");
-		ArrayList<String> maggiIngredients = new ArrayList<String>();
+		List<String> maggiIngredients = new ArrayList<String>();
 		maggiIngredients.add("Maggi");
 		maggiIngredients.add("Water");
 		maggiIngredients.add("Maggi Masala");
 		recipe1 = new Recipe(1L,"Halwa",dtf.format(now),"Veg",100, halwaIngredients,"Fry the Bread, Dip into sugar syrup, add cinnamon");
 		recipe2 = new Recipe(2L,"Maggi",dtf.format(now),"Veg",10, maggiIngredients,"Boil the water, Dip Maggi slice into water, add Maggi Masala after water evapourated");
-        when(recipeService.findById(1L)).thenReturn(Optional.of(recipe1));
-        when(recipeService.findById(2L)).thenReturn(Optional.of(recipe2));       
+        when(recipeService.findById(1L)).thenReturn(recipe1);
+        when(recipeService.findById(2L)).thenReturn(recipe2);       
         recipeRepoList.add(recipe1);
         recipeRepoList.add(recipe2);
         when(recipeService.findAll()).thenReturn(recipeRepoList);
@@ -129,11 +127,6 @@ public class RecipeControllerTest {
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(asJsonString(recipe1)))
         .andDo(MockMvcResultHandlers.print());
-		
-		RequestBuilder requestBuilder1 = MockMvcRequestBuilders.get("/recipe/5");
-		mockMvc.perform(requestBuilder1)
-		 .andExpect(status().isNotFound());
-       
 	}
 	
 	/**
@@ -143,7 +136,7 @@ public class RecipeControllerTest {
 	 */
 	@Test
 	public void createNewRecipeTest() throws Exception{
-		ArrayList<String> muskMelonJuiceIngredients = new ArrayList<String>();
+		List<String> muskMelonJuiceIngredients = new ArrayList<String>();
 		muskMelonJuiceIngredients.add("Muskmelon");
 		muskMelonJuiceIngredients.add("Water");
 		muskMelonJuiceIngredients.add("Sugar");

@@ -1,8 +1,9 @@
-package com.abn.amro;
+package com.abn.amro.repository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.abn.amro.model.Recipe;
-import com.abn.amro.repository.RecipeRepository;
 /**
  * This class covers the test cases for RecipeRepository
  * @author Bala Susmitha Vinjamuri
@@ -27,7 +27,7 @@ public class RecipRepositoryTest {
 	 */
 	@Test
 	public void save_update_deleteRecipe() {
-		ArrayList<String> ingredients = new ArrayList<String>();
+		List<String> ingredients = new ArrayList<String>();
 		ingredients.add("Sugar");
 		ingredients.add("Bread");
 		ingredients.add("Ghee");

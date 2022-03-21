@@ -1,4 +1,4 @@
-package com.abn.amro;
+package com.abn.amro.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -25,7 +25,6 @@ import com.abn.amro.exception.DuplicateRecipeException;
 import com.abn.amro.exception.RecipeNotFoundException;
 import com.abn.amro.model.Recipe;
 import com.abn.amro.repository.RecipeRepository;
-import com.abn.amro.service.RecipeService;
 /**
  * This class covers the test cases for RecipeService.
  * @author Bala Susmitha Vinjamuri
@@ -52,12 +51,12 @@ public class RecipeServiceTest {
 	 */
 	@BeforeEach
     void setup() {
-		ArrayList<String> halwaIngredients = new ArrayList<String>();
+		List<String> halwaIngredients = new ArrayList<String>();
 		halwaIngredients.add("Sugar");
 		halwaIngredients.add("Bread");
 		halwaIngredients.add("Ghee");
 		halwaIngredients.add("cinnamon");
-		ArrayList<String> maggiIngredients = new ArrayList<String>();
+		List<String> maggiIngredients = new ArrayList<String>();
 		maggiIngredients.add("Maggi");
 		maggiIngredients.add("Water");
 		maggiIngredients.add("Maggi Masala");
@@ -79,9 +78,14 @@ public class RecipeServiceTest {
 		 */
 	    @Test
 	    public void findByIdTest() {
-	    	 assertEquals(Optional.of(recipe1), recipeService.findById(1L));
-	    	 assertEquals(Optional.of(recipe2), recipeService.findById(2L));
-	    	 assertEquals(Optional.empty(), recipeService.findById(3L));
+	    	 assertEquals(recipe1, recipeService.findById(1L));
+	    	 assertEquals(recipe2, recipeService.findById(2L));
+	    	 Exception exception = assertThrows(RecipeNotFoundException.class, () -> {
+	    		 recipeService.findById(3L);
+		        });
+		    	String expectedMessage = "Recipe Not Found. You can add as new recipe.";
+		        String actualMessage = exception.getMessage();
+		    	assertEquals(expectedMessage,actualMessage);
 	    }
 	    
 	    /**
@@ -116,7 +120,7 @@ public class RecipeServiceTest {
 	    @Test
 	    public void saveRecipeTest() {
 	    	assertEquals("Error",recipeService.save(null));
-	    	ArrayList<String> breadOmletteIngredients = new ArrayList<String>();
+	    	List<String> breadOmletteIngredients = new ArrayList<String>();
 	    	breadOmletteIngredients.add("Onions");
 	    	breadOmletteIngredients.add("Eggs");
 	    	breadOmletteIngredients.add("Bread");
@@ -134,7 +138,7 @@ public class RecipeServiceTest {
 	     */
 	    @Test
 	    public void exception_updateRecipeNotFoundTest() {
-	    	ArrayList<String> muskMelonJuiceIngredients = new ArrayList<String>();
+	    	List<String> muskMelonJuiceIngredients = new ArrayList<String>();
 			muskMelonJuiceIngredients.add("Muskmelon");
 			muskMelonJuiceIngredients.add("Water");
 			muskMelonJuiceIngredients.add("Sugar");
