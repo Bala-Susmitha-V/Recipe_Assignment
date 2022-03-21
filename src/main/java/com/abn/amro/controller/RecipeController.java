@@ -1,13 +1,11 @@
 package com.abn.amro.controller;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,27 +14,39 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.abn.amro.exception.RecipeNotFoundException;
 import com.abn.amro.model.Recipe;
-import com.abn.amro.service.RecipeNotFoundException;
 import com.abn.amro.service.RecipeService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The Controller for Recipe REST endpoints.
+ * <p>
+ * This class handles the crud operations of Recipe via HTTP actions.
+ * </p>
+ * @author Bala Susmitha Vinjamuri
+ *
+ */
 @RestController
 @RequestMapping("recipe")
+@SecurityRequirement(name="recipeapi")
 @RequiredArgsConstructor
 public class RecipeController {
 	
 	@Autowired
 	private RecipeService recipeService;
 	
+	/**
+	 * Gets all the recipes.
+	 * @return Recipes with HTTP status code OK if recipes exists and HTTP status code NOT_FOUND if there are no recipies.
+	 */	
 	@GetMapping("/getAll")
 	public ResponseEntity<List<Recipe>> getAllRecipes(){
 		List<Recipe> recipies = recipeService.findAll();
 		if(recipies!=null) {
-			List<Recipe> sortedRecipies = recipies.stream().sorted(Comparator.comparingLong(Recipe::getId)).collect(Collectors.toList());
-			return new ResponseEntity<>(sortedRecipies,HttpStatus.OK);
+			return new ResponseEntity<>(recipies,HttpStatus.OK);
 		}
 		else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -44,12 +54,22 @@ public class RecipeController {
 		
 	}
 	
+	/**
+	 * Gets the requested recipe by RecipeId.
+	 * @param Recipe id
+	 * @return Requested Recipe with status code OK if recipe exists and Recipe Not Found message with HTTP status code NOT_FOUND if requested recipe does not exists.
+	 */
 	@GetMapping(path="/{id}")
 	public Recipe getRecipeDetails(@PathVariable Long id) {
 		return recipeService.findById(id).orElseThrow(()->new RecipeNotFoundException("Recipe Not Found. You can add as new recipe."));		
 	}
 	
-	@PostMapping(value="/create",produces = MediaType.APPLICATION_JSON_VALUE)
+	/**
+	 * Create a Recipe with the given data
+	 * @param A JSON respresentation of recipe object
+	 * @return Saved Successfully message with status code CREATED if recipe created and Save Failed message with status code BAD_REQUEST if recipe does not saved due to any issues.
+	 */
+	@PostMapping(value="/create",produces = "application/json")
 	public ResponseEntity<String> createNewRecipe(@RequestBody Recipe recipe) {
 		String message = recipeService.save(recipe);
 		if(message.equals("Saved")) {
@@ -60,6 +80,12 @@ public class RecipeController {
 		}
 	}
 	
+	/**
+	 * Updates a Recipe with the given data
+	 * @param Recipe id
+	 * @param A JSON respresentation of recipe object
+	 * @return Updated recipe with status code OK and HTTP status code NOT_FOUND if there is no such Recipe.
+	 */
 	@PutMapping("/update/{id}")
 	public 	ResponseEntity<Recipe> updateRecipe(@PathVariable Long id,@RequestBody Recipe recipe) {
 		Recipe updatedRecipe=recipeService.update(id,recipe);
@@ -71,7 +97,12 @@ public class RecipeController {
 		}
 	}
 	
-	@DeleteMapping(value="/delete/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+	/**
+	 * Deletes a Recipe with the given data
+	 * @param Recipe id
+	 * @return Deleted Successfully message with status code OK if deleted and  Deletion error with status code INTERNAL_SERVER_ERROR if any error
+	 */
+	@DeleteMapping(value="/delete/{id}",produces = "application/json")
 	public ResponseEntity<String> deleteRecipe(@PathVariable Long id) {
 			String message =  recipeService.delete(id);
 			if(message.equals("Deleted")) {

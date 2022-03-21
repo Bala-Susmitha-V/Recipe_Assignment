@@ -33,6 +33,11 @@ import com.abn.amro.model.Recipe;
 import com.abn.amro.service.RecipeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * This RecipeControllerTest class covers testcases for RecipeController class. 
+ * @author Bala Susmitha Vinjamuri
+ *
+ */
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(RecipeController.class)
 @WithMockUser
@@ -53,17 +58,24 @@ public class RecipeControllerTest {
 	private Recipe recipe1 ;
 	private Recipe recipe2 ;
 	List<Recipe> recipeRepoList = new ArrayList<Recipe>();
-
+	
+	/**
+	 * Common method which generates string for object
+	 * @param obj
+	 * @return string of object
+	 */
 	public static String asJsonString(final Object obj){
 	    try{
-	    	System.out.println("Json String Obj"+obj);
 	        return new ObjectMapper().writeValueAsString(obj);
 	    }catch (Exception e){
 	           throw new RuntimeException(e);
 	      }
 	}
 	
-	
+	/**
+	 * Initializes Recipe objects which can use for all test cases in this class.
+	 * Specifies the return values when service methods called. 
+	 */
 	@BeforeEach
 	public void setup() {
 		ArrayList<String> halwaIngredients = new ArrayList<String>();
@@ -82,10 +94,13 @@ public class RecipeControllerTest {
         recipeRepoList.add(recipe1);
         recipeRepoList.add(recipe2);
         when(recipeService.findAll()).thenReturn(recipeRepoList);
-        //System.out.println("Recipe cONTROLLER test"+recipeService.findAll());
 	}
 
-	
+	/**
+	 * Test cases for getAllRecipe method in controller
+	 * Positive Test: Status, content-type and recipelist what we have set default recipe objects in above.
+	 * @throws NotFoundException when recipelist null
+	 */
 	@Test
 	public void getAllRecipeTest() throws Exception {
 		
@@ -101,6 +116,11 @@ public class RecipeControllerTest {
 		
 	}
 	
+	/**
+	 * Test cases for getRecipeDetails method in controller
+	 * Positive Test: when passes the valid recipe id returns the respective recipe
+	 * @throws NotFoundException when invalid recipe id
+	 */
 	@Test
 	public void getRecipeDetailsTest() throws Exception {
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/recipe/1");
@@ -116,6 +136,11 @@ public class RecipeControllerTest {
        
 	}
 	
+	/**
+	 * Testcases for createNewRecipe in controller
+	 * Positive Test: when new recipe is created successfully then checks the status 201 and successfull message
+	 * @throws Bad Request when any invalid recipe values passed
+	 */
 	@Test
 	public void createNewRecipeTest() throws Exception{
 		ArrayList<String> muskMelonJuiceIngredients = new ArrayList<String>();
@@ -136,6 +161,11 @@ public class RecipeControllerTest {
 		assertEquals("Save Failed",errorResponse.getBody().toString());
 	}
 	
+	/**
+	 * Testcases for updateRecipe in controller
+	 * Positive Test: when existed recipe hits for update then checks for status and updated value
+	 * @throws NotFoundException when non existing recipe found
+	 */
 	@Test
 	public void updateRecipeTest() throws Exception{
 		when(recipeService.update(1L,recipe1)).thenReturn(recipe1);	
@@ -148,6 +178,11 @@ public class RecipeControllerTest {
 		assertEquals("404 NOT_FOUND",response1.getStatusCode().toString());
 	}
 	
+	/**
+	 * Testcases for deleteRecipe in controller
+	 * Positive Test: when existed recipe hits for delete then checks for status and deleted message
+	 * @throws Deletion error when there is any error
+	 */
 	@Test
 	public void deleteRecipeTest() throws Exception{
 		

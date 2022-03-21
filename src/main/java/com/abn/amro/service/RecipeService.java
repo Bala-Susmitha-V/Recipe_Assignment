@@ -8,53 +8,90 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.abn.amro.exception.DuplicateRecipeException;
+import com.abn.amro.exception.RecipeNotFoundException;
 import com.abn.amro.model.Recipe;
 import com.abn.amro.repository.RecipeRepository;
 
+/**
+ * The Service class for Recipe crud operations.
+ * <p>
+ * This class implements the business logics for Recipe REST end points.
+ * </p>
+ * @author Bala Susmitha Vinjamuri
+ *
+ */
 @Service
 public class RecipeService {
 	
 	@Autowired
 	private RecipeRepository recipeRepository;
 	
+	/**
+	 * Get all the Recipes.
+	 * @return List of Recipes
+	 */
 	public List<Recipe> findAll() {
 		return recipeRepository.findAll();
 	}
 	
+	/**
+	 * Finds the requested Recipe. 
+	 * @param Recipe id
+	 * @return Recipe if found and  null if Recipe not found
+	 */
     public Optional <Recipe> findById(long id) {
         return recipeRepository.findById(id);
     }
 
-   
+    /**
+     * Saves the Recipe.
+     * <p>
+     * sets date and time to dd-MM-yyyy HH:mm format.
+     * </p>
+     * <p>
+     * checks the recipe for duplicates by recipe name.
+     * </p>
+     * @exception throws Duplicate Recipe custom exception
+     * @param JSON representation of recipe object
+     * @return Saved if recipe saved and Error if recipe null
+     */
     public String save(Recipe recipe) {
     	if(recipe!=null) {
-    	if(recipe.getCreationTime()==null) {
-    		System.out.println("In Time");
-    		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-    		LocalDateTime now = LocalDateTime.now();
-    		System.out.println(dtf.format(now)); 
-    		recipe.setCreationTime(dtf.format(now));
-    	}
-    	if(recipe.getName()==null || recipe.getInstructions()==null || recipe.getPeopleCount()==0 || recipe.getVegorNonveg()==null || recipe.getIngredients()==null) {
-    		throw new IllegalArgumentException("ERROR: Might any of the imputs missed");
-    	}
-    	System.out.println("Recipe in Service"+recipe);
-    	boolean checkDup = this.getDuplicates(findAll(),recipe.getName());
-    	System.out.println(checkDup);
-    	Recipe addedrecipe ;
-    	if(checkDup==false) {   	
-    		 addedrecipe =recipeRepository.save(recipe);
-    	}
-    	else {
-    		throw new DuplicateRecipeException("Duplicate Recipe Exception");
-    	}
-    		return "Saved";
+	    	if(recipe.getCreationTime()==null) {
+	    		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+	    		LocalDateTime now = LocalDateTime.now(); 
+	    		recipe.setCreationTime(dtf.format(now));
+	    	}
+	    	
+	    	boolean checkDup = this.getDuplicates(findAll(),recipe.getName());
+	    	Recipe addedrecipe ;
+	    	if(checkDup==false) {   	
+	    		 addedrecipe =recipeRepository.save(recipe);
+	    	}
+	    	else {
+	    		throw new DuplicateRecipeException("Duplicate Recipe Exception");
+	    	}
+	    		return "Saved";
     	}
     	else {
     		return "Error";
     	}
     }
     
+    /**
+     * Updates the Recipe.
+     * <p>
+     * Firstly it will check if Recipe is existed with given data.
+     * </p>
+     * @exception if recipe does not exists
+     * <p>
+     * If recipe exists then updates the recipe
+     * </p>
+     * @param Recipe id
+     * @param JSON representation of recipe object
+     * @return updated recipe
+     */
     public Recipe update(Long id,Recipe recipe) {
     	
     	Optional<Recipe> recipeData = recipeRepository.findById(id);
@@ -72,13 +109,24 @@ public class RecipeService {
 		}
     }
 
-    
+    /**
+     * Deletes the Recipe
+     * <p>
+     * Firstly it will check if Recipe is existed with given data.
+     * </p>
+     * @exception if recipe does not exists
+     * <p>
+     * If recipe exists then deletes the recipe
+     * </p>
+     * @param Recipe id
+     * @return Deleted message if deleted and Error message if not deleted
+     */
     public String delete(long id) {
-    	Optional<Recipe> checkBefDel = recipeRepository.findById(id);
-    	if(checkBefDel.isPresent()) {
+    	Optional<Recipe> recipe = recipeRepository.findById(id);
+    	if(recipe.isPresent()) {
 	    	recipeRepository.deleteById(id);
-	    	Optional<Recipe> checkAftDel = recipeRepository.findById(id);
-	    	if(checkAftDel.isEmpty()) {
+	    	Optional<Recipe> checkRecipeAftDel = recipeRepository.findById(id);
+	    	if(checkRecipeAftDel.isEmpty()) {
 	    		return "Deleted";
 	    	}
 	    	else {
@@ -90,7 +138,12 @@ public class RecipeService {
     	}
     }
     
-    
+    /**
+     * Checks the duplicates of recipes by name
+     * @param recipeList
+     * @param recipe name
+     * @return true if Recipe name already existed and false if Recipe name not existed
+     */
     public boolean getDuplicates(final List<Recipe> recipeList,String name) {
 
     	   return recipeList.stream().map(Recipe::getName).filter(name::equals).findFirst().isPresent();

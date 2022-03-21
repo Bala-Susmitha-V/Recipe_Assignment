@@ -21,12 +21,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.abn.amro.exception.DuplicateRecipeException;
+import com.abn.amro.exception.RecipeNotFoundException;
 import com.abn.amro.model.Recipe;
 import com.abn.amro.repository.RecipeRepository;
-import com.abn.amro.service.DuplicateRecipeException;
-import com.abn.amro.service.RecipeNotFoundException;
 import com.abn.amro.service.RecipeService;
-
+/**
+ * This class covers the test cases for RecipeService.
+ * @author Bala Susmitha Vinjamuri
+ *
+ */
 @SpringBootTest
 public class RecipeServiceTest {
 	
@@ -42,6 +46,10 @@ public class RecipeServiceTest {
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 	LocalDateTime now = LocalDateTime.now();
 	
+	/**
+	 * Initializes Recipe objects which can use for all test cases in this class.
+	 * Specifies the return values when repository methods called. 
+	 */
 	@BeforeEach
     void setup() {
 		ArrayList<String> halwaIngredients = new ArrayList<String>();
@@ -64,6 +72,11 @@ public class RecipeServiceTest {
     }
 	
 	
+		/**
+		 * This method covers test cases for findById.
+		 * Positive Test Case: If valid recipe id has given then checks for respective recipe
+		 * Negative Test Case: If invalid recipe id has given then checks for empty
+		 */
 	    @Test
 	    public void findByIdTest() {
 	    	 assertEquals(Optional.of(recipe1), recipeService.findById(1L));
@@ -71,14 +84,21 @@ public class RecipeServiceTest {
 	    	 assertEquals(Optional.empty(), recipeService.findById(3L));
 	    }
 	    
+	    /**
+	     * This method covers test cases for findAll.
+	     * Checks for recipeList and size as we have specified recipelist already in beforeEach method
+	     */
 	    @Test
 	    public void findAllTest() {
 	    	List<Recipe> recipeList = recipeService.findAll();
-	    	System.out.println("List" +recipeService.findAll());
 	    	assertTrue(recipeList.contains(recipe2));
 	    	assertEquals(2, recipeList.size());
 	    }
 	    
+	    /**
+	     * This method covers test cases for saveDuplicateRecipe.
+	     * @throws if tried to save the existing recipes then DuplicateRecipeException is thrown and checks for message
+	     */
 	    @Test
 	    public void exception_saveDuplicateRecipeTest() {
 	    	Exception exception = assertThrows(DuplicateRecipeException.class, () -> {
@@ -89,6 +109,10 @@ public class RecipeServiceTest {
 	    	assertEquals(expectedMessage,actualMessage);
 	    }
 	   
+	    /**
+	     * This method covers the test cases for saveRecipe
+	     * Positive Test case: When given valid recipe then checks for Saved message
+	     */
 	    @Test
 	    public void saveRecipeTest() {
 	    	assertEquals("Error",recipeService.save(null));
@@ -102,22 +126,12 @@ public class RecipeServiceTest {
 			Recipe recipe3 = new Recipe(3L,"BreadOmlette",dtf.format(now),"NonVeg",200, breadOmletteIngredients,"1)Fry the Bread on Pan. 2)Pour the eggs into boul,add onions,mirchi,salt. 3)Stir the ingredients. 4)Add oil on Pan and pour the mixture on the pan like omlette  5) Then keep the Bread on omlette and fry aside. ");
 			when(recipeRepository.save(Mockito.any())).thenReturn(recipe3);
 			assertEquals("Saved",recipeService.save(recipe3));
-			ArrayList<String> muskMelonJuiceIngredients = new ArrayList<String>();
-			muskMelonJuiceIngredients.add("Muskmelon");
-			muskMelonJuiceIngredients.add("Water");
-			muskMelonJuiceIngredients.add("Sugar");
-			Recipe recipe4 = new Recipe(4L,"Muskmelon Juice",null,"Veg",100, muskMelonJuiceIngredients,"Peal and cut into piences of Muskmelon. Grind the pieces into jar with sugar once.Later pour the water and grind again");
-			when(recipeRepository.save(Mockito.any())).thenReturn(recipe4);
-			assertEquals("Saved",recipeService.save(recipe4));
-			recipe4.setInstructions(null);
-			Exception argsException = assertThrows(IllegalArgumentException.class, () -> {
-	    		recipeService.save(recipe4);
-	        });
-	    	String expectedArgsMessage = "ERROR: Might any of the imputs missed";
-	        String actualArgsMessage = argsException.getMessage();
-	    	assertEquals(expectedArgsMessage,actualArgsMessage);
 	    }
 	    
+	    /**
+	     * This method covers the test cases for UpdateRecipe negative test
+	     * When invalid recipe has given then throws RecipeNotFound exceptions and checks for message
+	     */
 	    @Test
 	    public void exception_updateRecipeNotFoundTest() {
 	    	ArrayList<String> muskMelonJuiceIngredients = new ArrayList<String>();
@@ -134,6 +148,10 @@ public class RecipeServiceTest {
 			
 	    }
 	    
+	    /**
+	     * This method covers the test cases for UpdateRecipe positive test
+	     * When valid recipe update details has given then check for updated value before and after update
+	     */
 	    @Test
 	    public void updateRecipeTest() {
 	    	when(recipeRepository.save(Mockito.any())).thenReturn(recipe1);
@@ -142,6 +160,10 @@ public class RecipeServiceTest {
 	    	assertEquals(recipe1.getName(),recipeService.update(1L, recipe1).getName());
 	    }
 	    
+	    /**
+	     * This method covers the test cases for deleteRecipe 
+	     * When recipe is deleted checks for empty and invalid recipe has given then throws RecipeNotFound exception.
+	     */
 	    @Test
 	    public void deleteRecipeTest() {
 	    	 recipeService.delete(1L);

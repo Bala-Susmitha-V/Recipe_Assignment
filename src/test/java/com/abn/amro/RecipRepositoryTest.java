@@ -11,15 +11,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.abn.amro.model.Recipe;
 import com.abn.amro.repository.RecipeRepository;
-
+/**
+ * This class covers the test cases for RecipeRepository
+ * @author Bala Susmitha Vinjamuri
+ *
+ */
 @SpringBootTest
 public class RecipRepositoryTest {
 
 	@Autowired
 	private RecipeRepository recipeRepository;
 	
+	/**
+	 * Checks all test scenarios using assertions for save update and delete
+	 */
 	@Test
-	public void saveRecipe() {
+	public void save_update_deleteRecipe() {
 		ArrayList<String> ingredients = new ArrayList<String>();
 		ingredients.add("Sugar");
 		ingredients.add("Bread");
@@ -31,13 +38,11 @@ public class RecipRepositoryTest {
 		recipe.setPeopleCount(100);
 		recipe.setVegorNonveg("Veg");
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-		LocalDateTime now = LocalDateTime.now();
-		System.out.println(dtf.format(now)); 
+		LocalDateTime now = LocalDateTime.now(); 
 		recipe.setCreationTime(dtf.format(now));
 		recipe.setIngredients(ingredients);
 		recipe.setInstructions("Fry the Bread, Dip into sugar syrup, add cinnamon");
 		Recipe newrecipe=  recipeRepository.save(recipe);
-		System.out.println(" Recipe repo test"+newrecipe);
 		Assertions.assertThat(newrecipe).isNotNull();
 		Iterable<Recipe> recipeList = recipeRepository.findAll();
 		Assertions.assertThat(recipeList).extracting(Recipe::getName).contains("Halwa");
